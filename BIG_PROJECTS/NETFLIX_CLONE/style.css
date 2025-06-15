@@ -1,0 +1,285 @@
+@import url('https://fonts.googleapis.com/css2?family=Martel+Sans:wght@200;300;400;600;700;800;900&display=swap');
+*{
+    padding: 0px; 
+    margin: 0px;
+    font-family: 'Martel Sans', sans-serif;
+}
+body{
+    background-color: black;
+}
+.main{
+    background-image: url("assets/bg.jpg");
+    background-position: center center;
+    background-repeat: no-repeat;
+    background-size: max(1200px,100vw);
+    height: 80vh;
+    position: relative;
+    background-color: rgba(23,23,23,0.8);
+    width: 100%;
+    opacity: 0.80;
+    top: 0;
+}
+.main .box{
+    height: 80vh;
+    
+    /* height: 100%;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: rgba(0, 0, 0, 0.5); Dark transparent background
+    z-index: 1; Keep it behind other content */
+}
+
+.main button{
+    background-color: red;
+    color: white;
+    font-weight: 900;
+    border-radius: 4px;
+    border-color: red;
+    padding: 4px;
+    width: 60px;
+    min-height: 40px; /* Ensures it's tappable */
+    max-height: 60px;
+    /* height: 33px; */
+}
+.lng select{
+    color: white;
+    background-color: rgba(23,23,23,0.8);
+    border-color: rgba(23,23,23,0.8);
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    padding: 5px;
+    white-space: nowrap;
+    height: 33px;
+    line-height: normal;
+    min-height: 25px; 
+    max-height: 33px; 
+    overflow: hidden;
+    width: 8.125rem;
+    position: relative;
+}
+
+button:hover {
+    background-color: rgb(220, 0, 0);
+    transform: scale(1.05);
+    transition: all 0.3s ease;
+}
+nav {
+    position: relative;
+    display: flex;
+    align-items: center; 
+    justify-content: space-around;/* Ensures it's on top of background */
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    background: transparent;
+    padding: 10px 0;
+    z-index: 1000;
+}
+nav div{
+    display: flex;
+    gap: 15px;
+}
+nav img{
+    color: red;
+    width: 114px;
+    position: relative;
+    z-index: 10;
+}
+nav button{
+    position: relative;
+    z-index: 10;
+}
+
+.hero{
+    height: auto;
+    min-height: 50vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-top: 20vh;
+    position: relative;
+}
+.hero span{
+    color: white;
+    font-family: 'Martel Sans', sans-serif;
+    white-space: normal;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.hero span pre{
+    font-weight:900;
+    font-size: 48px;
+}
+.hero :nth-child(3){
+    font-weight: 400;
+    font-size: 20px;
+    
+}
+
+.hero-title h1{
+    text-align: center;
+    font-size: 48px;
+    font-weight: 900;
+    color: #ffffff;
+    opacity: 1;
+}
+.hero-title h1 span{
+    display: block;
+    text-align: center;
+}
+
+.input{
+    display: flex;
+    /* flex-direction: column; */
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+    width: 100%;
+    padding: 10px;
+    margin: 0 auto;
+    flex-wrap: wrap;
+    max-width: 600px;
+}
+.input input{
+    flex: 2.5;
+    height: 35px;
+    width: 90%;
+    min-width: 300px;
+    max-width: 500px;
+    /* margin: 2.5px; */
+    background-color: rgba(23,23,23,0.8);
+    color: white;
+    border-radius: 4px;
+    font-weight: 300;
+    cursor: text;
+    padding: 3px 20px;
+    border: 2px solid rgba(255, 255, 255, 0.8);
+}
+
+.input input:focus {
+    outline: none;
+    border-color: red;
+    box-shadow: 0 0 10px red;
+}
+
+.input button{
+    display: flex;
+    flex: 1;
+    align-items: center;
+    justify-content: center;
+    height:  40px;
+    width :90%;
+    max-width: 200px;
+    padding: 10px 20px;
+    background-color: red;
+    color: white;
+    font-family: 'Martel Sans', sans-serif;
+    font-weight:800;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    gap: 8px;
+    white-space: nowrap;
+    text-align: center;
+}
+
+.right-arrow {
+    width: auto;  
+    height: 28px;
+    margin: 2px;
+    position: relative;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: normal;
+    flex-wrap: wrap;
+}
+
+.lng{
+    background-color: rgba(23,23,23,0.8);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    display: inline-block;
+    border-radius: 4px;
+    white-space: nowrap;
+}
+.separation{
+    height: 9px;
+    background-color: grey;
+}
+
+.first, .second, .third, .fourth{
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin: auto;
+    width: 100%;
+    max-width: 1200px;
+    color: white;
+    text-align: center;
+    position: relative;
+    padding: 20px;
+    gap: 20px;
+    text-wrap: wrap;
+}
+
+.first .one, .second .one, .third .one, .fourth .one {
+    font-size: clamp(24px, 5vw, 48px); /* Adjusts based on viewport */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.first .two, .second .two, .third .two, .fourth .two {
+    font-size: clamp(16px, 2vw, 22px);
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.Tv, .download, .telescope, .profile {
+    max-width: 90%; /* Prevents images from overflowing */
+}
+
+@media (max-width: 600px) {
+    .first, .second, .third, .fourth {
+        flex-direction: column;
+        text-align: center;
+        padding: 10px;
+    }
+
+    .first .one, .second .one, .third .one, .fourth .one {
+        font-size: 28px; /* Reduce heading size */
+        word-wrap: break-word;
+    overflow-wrap: break-word;
+    }
+
+    .first .two, .second .two, .third .two, .fourth .two {
+        font-size: 18px;
+        word-wrap: break-word;
+    overflow-wrap: break-word;
+    }
+
+    .input {
+        flex-direction: column;
+    }
+
+    .input input, .input button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 768px) {
+    nav {
+        flex-direction: column;
+        gap: 10px;
+        padding: 10px;
+    }
+}

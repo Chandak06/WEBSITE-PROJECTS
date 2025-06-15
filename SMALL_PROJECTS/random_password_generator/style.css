@@ -1,0 +1,102 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+
+body{
+    display: flex;
+    background-color: aquamarine;
+    justify-content: center;
+    height: 100vh;
+    align-items: center;
+    /* width: ; */
+    font-family: 'Courier New', Courier, monospace;
+}
+
+.password-container{
+    background-color: pink;
+    width: 500px;
+    /* justify-content: center; */
+    /* align-items: center; */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 4px 4px 8px rgba(0, 0, 0,0.3);
+    margin: 10px;
+}
+
+.input-container{
+    border: solid 2px black;
+    padding: 10px;
+    border-radius: 10px;display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.input{
+    border: none;
+    background-color: transparent;
+    outline: none;
+    font-size: 24px;
+    letter-spacing: 4px;
+
+}
+
+.input::placeholder{
+    letter-spacing: 0px;
+}
+
+.fa-copy{
+    cursor: pointer;
+    opacity: 0.3;
+}
+
+.fa-copy:hover{
+    opacity: 0.7;
+}
+
+
+.btn{
+    background-color: black;
+    color: white;
+    border: none;
+    padding:10px 20px ;
+    border-radius: 10px;
+    margin-top: 15px;
+    /* margin-bottom: 15px; */
+   font-size: 20px;
+   cursor: pointer;
+}
+
+
+.btn:hover{
+    background-color: blanchedalmond;
+    color: red;
+}
+
+.btn:active{
+    transform: scale(0.95);
+}
+
+
+.alert-container{
+    position: fixed;
+    width: 300px;
+    height: 50px;
+    background-color: lightgreen;
+    right: -300px;
+    bottom: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    display: flex;
+    text-align: center;
+    justify-content: center;
+    align-items: center;
+    font-size: 20px;
+    transition: right 0.3s ease-in-out;
+}
+
+
+.alert-container.active{
+    right: 20px;
+}
