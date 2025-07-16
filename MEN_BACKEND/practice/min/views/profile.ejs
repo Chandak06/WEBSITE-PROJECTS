@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Profile</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+  </head>
+  <body class="bg-zinc-900 text-white p-10">
+    <div class="max-w-md mx-auto bg-zinc-800 p-6 rounded-lg shadow-md">
+      <h1 class="text-2xl font-bold mb-4 text-center">
+        👋 Welcome, <%= user.username %>
+      </h1>
+      <p><strong>Name:</strong> <%= user.name %></p>
+      <p><strong>Email:</strong> <%= user.email %></p>
+      <p><strong>Age:</strong> <%= user.age %></p>
+      <div class="mt-4 flex justify-center">
+        <a
+          href="/logout"
+          class="bg-red-600 px-4 py-2 rounded-md text-white hover:bg-red-700"
+          >Logout</a
+        >
+      </div>
+    </div>
+    <form action="/post" method="post">
+      <div
+        class="post max-w-md mx-auto mt-10 p-4 rounded-lg bg-zinc-800 flex justify-center flex-col"
+      >
+        <h3 class="text-blue-500">@<%=user.username%></h3>
+        <textarea
+          class="w-[80%] h-[200px] bg-zinc-700 mx-auto block mt-4 mb-4 resize-none border-none p-2 rounded-sm outline-none text-white"
+          placeholder="Write your post here..."
+          name="content"
+        ></textarea>
+
+        <input
+          class="bg-blue-500 rounded-sm text-white font-bold px-3 py-2 mx-auto block cursor-pointer"
+          type="submit"
+          value="Submit Post"
+        />
+      </div>
+    </form>
+
+    <div class="container flex flex-wrap gap-4 bg-zinc-800 w-full p-4 mt-6">
+      <% if (user.posts.length === 0) { %>
+      <p class="text-white text-center flex justify-center w-full">
+        No posts yet. Go create one!
+      </p>
+      <% } else { %> <% user.posts.forEach(post => { %>
+      <div
+        class="flex flex-col max-w-md bg-zinc-700 p-4 rounded-md text-white shadow-md"
+      >
+        <h3 class="text-blue-400 font-semibold mb-2">
+          Post by @<%= user.username %>
+        </h3>
+        <p class="mb-4"><%= post.content %></p>
+        <div class="btns flex justify-between">
+          <form action="/like/<%= post._id %>" method="POST">
+            <button
+              type="submit"
+              class="<%= post.likes.includes(user._id.toString()) ? 'text-red-500' : 'text-blue-400' %> hover:underline cursor-pointer"
+            >
+              <%= post.likes.includes(user._id.toString()) ? 'Liked' : 'Like' %>
+            </button>
+          </form>
+
+          <a class="text-green-400 hover:underline" href="/edit/<%= post._id %>"
+            >Edit
+          </a>
+          
+
+          <form action="/delete/<%= post._id %>" method="POST">
+            <button
+              type="submit"
+              class="text-red-400 hover:underline bg-transparent border-none cursor-pointer"
+            >
+              Delete
+            </button>
+          </form>
+        </div>
+      </div>
+      <% }) %>  <% } %>
+    </div>
+  </body>
+</html>
