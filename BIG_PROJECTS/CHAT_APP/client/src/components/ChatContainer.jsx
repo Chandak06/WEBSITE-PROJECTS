@@ -1,11 +1,41 @@
-import { useEffect, useRef } from "react";
-import assets, { messagesDummyData } from "../assets/assets";
+import { useContext, useEffect, useRef, useState } from "react";
+import assets from "../assets/assets";
 import { formatMessageTime } from "../lib/utils";
 import { useLayoutEffect } from "react";
+import { ChatContext } from "../../context/ChatContext.jsx";
+import { AuthContext } from "../../context/AuthContext.jsx";
+import toast from "react-hot-toast";
 
-const ChatContainer = ({ selectedUser, setSelectedUser , messages = messagesDummyData }) => {
-const listRef = useRef(null);
-const endRef=useRef(null);
+const ChatContainer = () => {
+  const { messages, selectedUser, setSelectedUser, sendMessages, getMessages } =
+    useContext(ChatContext);
+  const { authUser, onlineUsers } = useContext(AuthContext);
+
+  const [input, setInput] = useState("");
+
+  const handleSendMessage = async (e) => {
+    e.preventDefault();
+    if (input.trim() === "") return null;
+    await sendMessages({ text: input.trim() });
+    setInput("");
+  };
+
+  const handleSendImage = async (e) => {
+    const file = e.target.files[0];
+    if (!file || !file.type.startsWith("image/")) {
+      toast.error("Select an image file");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onloadend = async () => {
+      await sendMessages({ image: reader.result });
+      e.target.value = "";
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const listRef = useRef(null);
+  const endRef = useRef(null);
   const scrollToBottom = (behavior = "auto") => {
     const el = listRef.current;
     if (!el) return;
@@ -23,7 +53,15 @@ const endRef=useRef(null);
   useEffect(() => {
     requestAnimationFrame(() => scrollToBottom("smooth"));
   }, [messages.length]);
-  if (!selectedUser) {
+ 
+
+  useEffect(()=>{
+    if(selectedUser){
+      getMessages(selectedUser._id);
+    }
+  },[selectedUser])
+
+   if (!selectedUser) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 text-gray-500 bg-white/10 max-md:hidden">
         <img src={assets.logo_icon} className="max-w-16" />
@@ -36,11 +74,20 @@ const endRef=useRef(null);
     <div className="flex flex-col h-full min-h-0">
       {/* Header */}
       <div className="flex items-center gap-3 py-3 mx-4 border-b border-stone-500">
-        <img src={assets.profile_martin} className="w-8 rounded-full" />
+        <img
+          src={selectedUser?.profilePic || assets.avatar_icon}
+          className="w-8 rounded-full"
+        />
         <p className="flex-1 text-lg text-white flex items-center gap-2">
-          Martin Johnson
-          <span className="w-2 h-2 rounded-full bg-green-500" />
+          {selectedUser?.fullName}
+          {onlineUsers.includes(selectedUser?._id) && (
+            <span
+              className="w-2 h-2 rounded-full bg-green-500 animate-pulse"
+              title="Online"
+            ></span>
+          )}
         </p>
+
         <img
           src={assets.arrow_icon}
           className="md:hidden max-w-7 cursor-pointer"
@@ -51,12 +98,14 @@ const endRef=useRef(null);
 
       {/* Messages */}
       <div
-      ref={listRef} className="flex-1 min-h-0 overflow-y-auto p-3 pb-4 scrollbar-hidden">
-        {messagesDummyData.map((msg, index) => (
+        ref={listRef}
+        className="flex-1 min-h-0 overflow-y-auto p-3 pb-4 scrollbar-hidden"
+      >
+        {messages.map((msg, index) => (
           <div
             key={index}
             className={`flex items-end gap-2 justify-end ${
-              msg.senderId !== "680f50e4f10f3cd28382ecf9" && "flex-row-reverse"
+              msg.senderId !== authUser._id && "flex-row-reverse"
             }`}
           >
             {msg.image ? (
@@ -67,7 +116,7 @@ const endRef=useRef(null);
             ) : (
               <p
                 className={`p-2 max-w-[200px] md:text-sm font-light rounded-lg mb-8 break-all bg-violet-500/30 text-white ${
-                  msg.senderId === "680f50e4f10f3cd28382ecf9"
+                  msg.senderId === authUser._id
                     ? "rounded-br-none"
                     : "rounded-bl-none"
                 }`}
@@ -79,9 +128,9 @@ const endRef=useRef(null);
             <div className="text-center text-xs">
               <img
                 src={
-                  msg.senderId === "680f50e4f10f3cd28382ecf9"
-                    ? assets.avatar_icon
-                    : assets.profile_martin
+                  msg.senderId === authUser._id
+                    ? authUser?.profilePic || assets.avatar_icon
+                    : selectedUser?.profilePic || assets.avatar_icon
                 }
                 className="w-7 rounded-full"
               />
@@ -98,11 +147,19 @@ const endRef=useRef(null);
       <div className="flex items-center gap-3 p-3">
         <div className="flex-1 flex items-center bg-gray-100/12 px-3 rounded-full">
           <input
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => (e.key === "Enter" ? handleSendMessage(e) : null)}
             type="text"
             placeholder="Enter message..."
             className="flex-1 text-sm p-3 border-none outline-none rounded-lg text-white placeholder-gray-400 bg-transparent"
           />
-          <input type="file" id="image" accept="image/png,image/jpeg" hidden />
+          <input
+            onChange={handleSendImage}
+            type="file"
+            id="image"
+            accept="image/png,image/jpeg"
+            hidden
+          />
           <label htmlFor="image">
             <img
               src={assets.gallery_icon}
@@ -110,7 +167,11 @@ const endRef=useRef(null);
             />
           </label>
         </div>
-        <img src={assets.send_button} className="w-7 cursor-pointer" />
+        <img
+          onClick={handleSendMessage}
+          src={assets.send_button}
+          className="w-7 cursor-pointer"
+        />
       </div>
     </div>
   );
