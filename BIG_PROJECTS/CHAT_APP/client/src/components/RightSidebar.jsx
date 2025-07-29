@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from "react";
-import assets, { imagesDummyData } from "../assets/assets";
+import assets from "../assets/assets";
 
 import { AuthContext } from "../../context/AuthContext";
 import { ChatContext } from "../../context/ChatContext";
@@ -14,7 +14,7 @@ const RightSideBar = () => {
     setMsgImages(
       messages.filter(msg=>msg.image).map(msg=>msg.image)
     )
-  })
+  }, [messages])
 
   return (
     selectedUser && (
