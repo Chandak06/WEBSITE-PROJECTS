@@ -1,50 +1,96 @@
+const Message = require("../models/Message");
 
-const onlineUsers = new Map();
+const socketHandler = (io, redisClient) => {
+  io.on("connection", async (socket) => {
+    const userId = socket.userId;
+    await redisClient.sAdd(`user_socket:${userId}`, socket.id);
+    console.log("User Connected:", userId);
 
-io.on("connection", (socket) => {
-  console.log("User Connected", socket.id);
-  socket.on("join_chat", (chatId) => {
-    socket.join(chatId);
-    console.log("User joined the chat : ", chatId);
-  });
-
-  socket.on("user_online", (userId) => {
-    onlineUsers.set(userId, socket.id);
-    console.log("Online users:", onlineUsers);
-  });
-
-  socket.on("send_message", (data) => {
-    const { chatId, message } = data;
-    socket.to(chatId).emit("receive_message", message);
-  });
-
-  socket.on("message_delivered",async (messageId)=>{
-    await Message.findByIdAndUpdate(messageId,{
-      status : "delivered"
-    })
-  })
-  socket.on("message_read",async (messageId)=>{
-    await Message.findByIdAndUpdate(messageId,{
-      status : "read"
-    })
-  })
-
-  socket.on("typing",(chatId)=>{
-    socket.to(chatId).emit("user_typing")
-  })
-  socket.on("stop_typing",(chatId)=>{
-    socket.to(chatId).emit("user_stop_typing")
-  })
-
-  socket.on("disconnect", () => {
-    for (let [userId, socketId] of onlineUsers.entries()) {
-      if (socketId == socket.id) {
-        onlineUsers.delete(userId);
-        break;
-      }
+    if (userId) {
+      await redisClient.sAdd("online_users", userId);
+      socket.broadcast.emit("user_online", userId);
     }
-    console.log("User disconnected", socket.id);
+
+    socket.on("join_chat", (chatId) => {
+      socket.join(chatId);
+      console.log(`User ${userId} joined chat ${chatId}`);
+    });
+
+    socket.on("send_message", async (data) => {
+      const { chatId, receiverId, senderId, content } = data;
+
+      const message = await Message.create({
+        chatId,
+        sender: senderId,
+        receiver: receiverId,
+        content,
+        status: "sent",
+      });
+
+      socket.to(chatId).emit("receive_message", message);
+
+      const sockets = await redisClient.sMembers(`user_socket:${receiverId}`);
+
+      sockets.forEach((id) => {
+        io.to(id).emit("receive_message", message);
+      });
+    });
+
+    socket.on("message_delivered", async (messageId) => {
+      const message = await Message.findByIdAndUpdate(
+        messageId,
+        { status: "delivered" },
+        { new: true },
+      );
+
+      const sockets = await redisClient.sMembers(
+        `user_socket:${message.sender}`,
+      );
+
+      sockets.forEach((id) => {
+        io.to(id).emit("message_delivered", messageId);
+      });
+    });
+
+    socket.on("message_read", async (messageId) => {
+      const message = await Message.findByIdAndUpdate(
+        messageId,
+        { status: "read" },
+        { new: true },
+      );
+
+      const sockets = await redisClient.sMembers(
+        `user_socket:${message.sender}`,
+      );
+
+      sockets.forEach((id) => {
+        io.to(id).emit("message_read", messageId);
+      });
+    });
+
+    socket.on("typing", async (chatId) => {
+      const key = `typing:${chatId}:${userId}`;
+      await redisClient.set(key, "1", { EX: 3 });
+      socket.to(chatId).emit("user_typing", userId);
+    });
+
+    socket.on("stop_typing", async (chatId) => {
+      const key = `typing:${chatId}:${userId}`;
+      await redisClient.del(key);
+      socket.to(chatId).emit("user_stop_typing", userId);
+    });
+
+    socket.on("disconnect", async () => {
+      if (userId) {
+        await redisClient.sRem("online_users", userId);
+        await redisClient.set(`last_seen:${userId}`, Date.now());
+
+        socket.broadcast.emit("user_offline", userId);
+        console.log("User disconnected:", userId);
+        await redisClient.sRem(`user_socket:${userId}`, socket.id);
+      }
+    });
   });
-});
+};
 
 module.exports = socketHandler;
