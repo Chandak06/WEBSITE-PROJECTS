@@ -7,7 +7,7 @@ import {serve} from "inngest/express"
 import {inngest,functions} from './lib/inngest.js'
 import cors from 'cors'
 import { clerkMiddleware } from "@clerk/express";
-import  protectRoute  from "./middlewares/protectRoute.js";
+import  {protectRoute}  from "./middlewares/protectRoute.js";
 import chatRoutes from "./routes/chatRoutes.js"
 import sessionRoutes from "./routes/sessionRoutes.js"
 
