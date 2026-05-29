@@ -15,7 +15,7 @@ const page = () => {
       <div className="mt-20 space-y-7 px-5 sm:px-10 lg:px-16 pb-10">
         <h3>Featured Events</h3>
 
-        <ul className="events">
+        <ul className="events" id="events">
           {events &&
             events.length > 0 &&
             events.map((event) => (
