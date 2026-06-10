@@ -1,3 +1,5 @@
+import DataTable from "../DataTable";
+
 export const CoinOverviewFallback = () => {
   return (
     <div id="coin-overview-fallback">
