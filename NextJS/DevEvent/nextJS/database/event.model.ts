@@ -83,6 +83,7 @@ const EventSchema = new Schema<IEvent>(
     },
     agenda: {
       type: [String],
+      default :[],
       required: [true, "Agenda is required"],
       validate: {
         validator: (v: string[]) => v.length > 0,
@@ -96,6 +97,7 @@ const EventSchema = new Schema<IEvent>(
     },
     tags: {
       type: [String],
+      default :[],
       required: [true, "Tags are required"],
       validate: {
         validator: (v: string[]) => v.length > 0,
@@ -165,7 +167,6 @@ function normalizeTime(timeString: string): string {
   return `${hours.toString().padStart(2, "0")}:${minutes}`;
 }
 
-EventSchema.index({ slug: 1 }, { unique: true });
 EventSchema.index({ date: 1, mode: 1 });
 
 const Event = models.Event || model<IEvent>("Event", EventSchema);

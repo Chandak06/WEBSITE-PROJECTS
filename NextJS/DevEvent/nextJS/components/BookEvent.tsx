@@ -1,49 +1,110 @@
-'use client';
+"use client";
 
-import {useState} from "react";
+import { useState } from "react";
 
 import posthog from "posthog-js";
+
 import { createBooking } from "@/lib/booking.actions";
 
-const BookEvent = ({ eventId, slug }: { eventId: string, slug: string;}) => {
-    const [email, setEmail] = useState('');
-    const [submitted, setSubmitted] = useState(false);
+type Props = {
+  eventId: string;
+  slug: string;
+};
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
+const BookEvent = ({ eventId, slug }: Props) => {
+  const [email, setEmail] = useState("");
+  const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-        const { success } = await createBooking({ eventId, email });
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
 
-        if(success) {
-            setSubmitted(true);
-            posthog.capture('event_booked', { eventId, slug, email })
-        } else {
-            console.error('Booking creation failed')
-            posthog.captureException('Booking creation failed')
-        }
+    try {
+      if (!email.trim()) {
+        console.error("Email is required");
+        return;
+      }
+
+      if (!eventId) {
+        console.error("Missing eventId");
+        return;
+      }
+
+      setLoading(true);
+
+      const result = await createBooking({
+        eventId,
+        email,
+      });
+
+      if (result.success) {
+        setSubmitted(true);
+
+        posthog.capture("event_booked", {
+          eventId,
+          slug,
+          email,
+        });
+      } else {
+        console.error(
+          "Booking creation failed:",
+          result.message || "Unknown error"
+        );
+
+        posthog.captureException(
+          new Error(result.message || "Booking creation failed")
+        );
+      }
+    } catch (error) {
+      console.error("Booking error:", error);
+
+      posthog.captureException(
+        error instanceof Error
+          ? error
+          : new Error("Unknown booking error")
+      );
+    } finally {
+      setLoading(false);
     }
+  };
 
-    return (
-        <div id="book-event">
-            {submitted ? (
-                <p className="text-sm">Thank you for signing up!</p>
-            ): (
-                <form onSubmit={handleSubmit}>
-                    <div>
-                        <label htmlFor="email">Email Address</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            id="email"
-                            placeholder="Enter your email address"
-                        />
-                    </div>
+  return (
+    <div id="book-event">
+      {submitted ? (
+        <p className="text-sm">
+          Thank you for signing up!
+        </p>
+      ) : (
+        <form onSubmit={handleSubmit}>
+          <div className="flex flex-col gap-2">
+            <label htmlFor="email">
+              Email Address
+            </label>
 
-                    <button type="submit" className="button-submit">Submit</button>
-                </form>
-            )}
-        </div>
-    )
-}
-export default BookEvent
+            <input
+              type="email"
+              id="email"
+              value={email}
+              onChange={(e) =>
+                setEmail(e.target.value)
+              }
+              placeholder="Enter your email address"
+              required
+              className="input"
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="button-submit"
+            disabled={loading}
+          >
+            {loading ? "Submitting..." : "Submit"}
+          </button>
+        </form>
+      )}
+    </div>
+  );
+};
+
+export default BookEvent;

@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
 
     try {
       event = Object.fromEntries(formData.entries());
-    } catch (e) {
+    } catch {
       return NextResponse.json(
         { message: "Invalid JSON data format" },
         { status: 400 },
@@ -29,8 +29,8 @@ export async function POST(req: NextRequest) {
         { status: 400 },
       );
 
-    let tags = JSON.parse(formData.get("tags") as string);
-    let agenda = JSON.parse(formData.get("agenda") as string);
+    const tags = JSON.parse(formData.get("tags") as string);
+    const agenda = JSON.parse(formData.get("agenda") as string);
 
     const arrayBuffer = await file.arrayBuffer();
     const buffer = Buffer.from(arrayBuffer);
@@ -72,20 +72,29 @@ export async function POST(req: NextRequest) {
   }
 }
 
-export async function GET() {
+export async function GET(
+  req: Request,
+  context: { params: Record<string, unknown> | Promise<Record<string, unknown>> },
+) {
   try {
     await connectDB();
 
-    const events = await Event.find().sort({ createdAt: -1 });
+    const maybeParams = context.params;
+    const params =
+      maybeParams && typeof (maybeParams as Promise<Record<string, unknown>>).then === "function"
+        ? await (maybeParams as Promise<Record<string, unknown>>)
+        : (maybeParams as Record<string, unknown>);
 
-    return NextResponse.json(
-      { message: "Events fetched successfully", events },
-      { status: 200 },
-    );
+    const slug = params && typeof params === "object" ? String(params["slug"]) : undefined;
+
+    const event = await Event.findOne({ slug });
+
+    if (!event) {
+      return NextResponse.json({ message: "Event not found" }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: "Event fetched successfully", event }, { status: 200 });
   } catch (e) {
-    return NextResponse.json(
-      { message: "Event fetching failed", error: e },
-      { status: 500 },
-    );
+    return NextResponse.json({ message: "Event fetching failed", error: e }, { status: 500 });
   }
 }
